@@ -7,12 +7,12 @@
     @author = "Thomas Vergne <thomas@quark-lang.dev>"
   */
   (import "misc.qrk")
-  (let foreach (fn (array (block body)) {
+  (let foreach (fn (array callback) {
     (let i 0)
     (let len (length array))
     (while (< i len) {
       (let item (index array i))
-      (std:exec body)
+      (callback item i)
       (set i (+ i 1))
     })
   }))
