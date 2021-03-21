@@ -116,8 +116,8 @@ QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
       : Parser.parse(code.value);
 
     if (isContainer(ast) && ast.length === 1)
-      return await Interpreter.process(ast[0], undefined, global);
-    return await Interpreter.process(ast, undefined, global);
+      return await Interpreter.process(ast[0], global);
+    return await Interpreter.process(ast, global);
   }
 });
 
