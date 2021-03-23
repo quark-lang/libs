@@ -1,18 +1,18 @@
-{
+
   (import "list.qrk")
+  (import "operators.qrk")
   (let split (fn (string delimitor) {
     (let result (list))
     (let tmp "")
-    (foreach string {
+    (foreach string (fn (item) {
       (if (= item delimitor)
         {
           (push result tmp)
           (set tmp "")
         }
-        (set tmp (+ tmp item))
+        (set tmp (++ tmp item))
       )
-    })
-    (if (> (length tmp) 0) (push result tmp))
+    }))
+    (if (!= tmp none) (push result tmp))
     (return result)
   }))
-}

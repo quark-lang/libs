@@ -1,13 +1,8 @@
-import { QuarkModule, quarkify } from '../../api/api.ts';
+import { quarkify, QuarkModule, setValue } from '../../api/api.ts';
 import { QuarkTypes } from '../../api/typings/types.ts';
-import { Interpreter } from '../../src/core/interpreter.ts';
+import { getValue, Interpreter } from '../../src/core/interpreter.ts';
 import { Parser } from '../../src/core/parser.ts';
-import {
-  Types,
-  StringType,
-  IntegerType,
-  ValueElement
-} from '../../src/typings/types.ts';
+import { BooleanType, IntegerType, StringType, Types, ValueElement } from '../../src/typings/types.ts';
 import { isContainer } from '../../src/utils/runner.ts';
 
 // std:out
@@ -29,6 +24,111 @@ QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
       ...element
     };
   }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'negate',
+  args: [{ type: 'Word', value: 'val1' }, { type: 'Word', value: 'val2' }],
+  body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
+    return setValue(getValue([lhs]) - getValue([rhs])) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'concat',
+  body: function(lhs: StringType, rhs: StringType): StringType{
+    return setValue(getValue([lhs])[0].concat(getValue([rhs])[0])) as StringType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'greater',
+  args: [{ type: 'Word', value: 'val1' }, { type: 'Word', value: 'val2' }],
+  body: function(lhs: IntegerType, rhs: IntegerType): BooleanType {
+    return setValue(getValue([lhs])[0] > getValue([rhs])[0]) as BooleanType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'less',
+  args: [{ type: 'Word', value: 'val1' }, { type: 'Word', value: 'val2' }],
+  body: function(lhs: IntegerType, rhs: IntegerType): BooleanType {
+    return setValue(getValue([lhs]) < getValue([rhs])) as BooleanType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'equals',
+  args: [{ type: 'Word', value: 'val1' }, { type: 'Word', value: 'val2' }],
+  body: function(lhs: ValueElement, rhs: ValueElement): BooleanType {
+    return setValue(getValue([lhs])[0] == getValue([rhs])[0]) as BooleanType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'length',
+  body: function(el: ValueElement): IntegerType {
+    return setValue(getValue([el])[0].length) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'not',
+  args: [],
+  body: function(el: ValueElement): BooleanType {
+    return setValue(!getValue([el])[0]) as BooleanType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'and',
+  args: [],
+  body: function(el: ValueElement, el2: ValueElement): BooleanType {
+    return setValue(getValue([el])[0] && getValue([el2])[0]) as BooleanType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'or',
+  args: [],
+  body: function(el: ValueElement, el2: ValueElement): BooleanType {
+    return setValue(getValue([el])[0] || getValue([el2])[0]) as BooleanType;
+  }
+});
+
+function quarkifyArray(array: any[]): string {
+  let res: string = '';
+  for (const index in array) {
+    const item = array[index];
+    if (Array.isArray(item)) {
+      res += `(list ${quarkifyArray(item)})`;
+    } else {
+      if (typeof item === 'string') {
+        res += `"${item}"`;
+      } else res += item;
+      if (array[Number(index) + 1] !== undefined) {
+        res += ' ';
+      }
+    }
+  }
+  return res;
+}
+
+// print
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'print',
+  body: (...args: ValueElement[]) => {
+    const items = [];
+    for (const arg of args) {
+      const _arg = getValue([arg]);
+      if (Array.isArray(_arg[0])) {
+        items.push(quarkifyArray(_arg))
+      } else {
+        items.push(_arg[0]);
+      }
+    }
+    console.log(...items);
+  },
 });
 
 // time:now
@@ -85,12 +185,6 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   }
 });
 
-// print
-QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
-  name: 'print',
-  body: (...args: ValueElement[]) => quarkify(console.log, ...args),
-});
-
 // input
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'input',
@@ -110,14 +204,14 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
 // std:exec
 QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
   name: 'exec',
-  body: async function(code: any, global: boolean = true): Promise<StringType> {
+  body: async function(code: any): Promise<StringType> {
     const ast = code.type === 'Block'
       ? code.value
       : Parser.parse(code.value);
 
     if (isContainer(ast) && ast.length === 1)
-      return await Interpreter.process(ast[0], global);
-    return await Interpreter.process(ast, global);
+      return await Interpreter.process(ast[0]);
+    return await Interpreter.process(ast);
   }
 });
 
