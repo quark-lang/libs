@@ -6,16 +6,18 @@
               "cb: the function to apply to the elements"]
     @author = "Thomas Vergne <thomas@quark-lang.dev>"
   */
-  (import "misc.qrk")
+
+  (import "operators.qrk")
   (let foreach (fn (array callback) {
     (let i 0)
     (let len (length array))
-    (while (< i len) {
+    (while (!= i len) {
       (let item (index array i))
       (callback item i)
       (set i (+ i 1))
     })
   }))
+
   /*
     @name = push
     @brief = Pushes an element to a list
@@ -24,8 +26,20 @@
     @author = "Wafelack <wafelack@protonmail.com>"
     @details = Returns the element if it is not a list
   */
+
   (let push (fn (el item) {
-    (set (index el (length el)) item)
+    (let len (length el))
+    (set (index el len) item)
     (return el)
+  }))
+
+  (let range (fn (from to) {
+    (let i from)
+    (let tmp (list))
+    (while (and (> i (- from 1)) (< i to)) {
+      (push tmp i)
+      (set i (+ i 1))
+    })
+    (return tmp)
   }))
 }
