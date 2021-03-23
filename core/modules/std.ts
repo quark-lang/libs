@@ -1,9 +1,9 @@
-import { quarkify, QuarkModule, setValue } from '../../api/api.ts';
-import { QuarkTypes } from '../../api/typings/types.ts';
-import { getValue, Interpreter } from '../../src/core/interpreter.ts';
-import { Parser } from '../../src/core/parser.ts';
-import { BooleanType, IntegerType, StringType, Types, ValueElement } from '../../src/typings/types.ts';
-import { isContainer } from '../../src/utils/runner.ts';
+import { quarkify, QuarkModule, setValue } from '../../../api/api.ts';
+import { QuarkTypes } from '../../../api/typings/types.ts';
+import { getValue, Interpreter } from '../../../src/core/interpreter.ts';
+import { Parser } from '../../../src/core/parser.ts';
+import { BooleanType, IntegerType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
+import { isContainer } from '../../../src/utils/runner.ts';
 
 // std:out
 QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
