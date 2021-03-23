@@ -1,24 +1,28 @@
 {
+  (import "list.qrk")
+  (import "split.qrk")
+  (import "operators.qrk")
+
   (let parseConfiguration (fn (content) {
     (let result (list))
-    (foreach (split content "\n") item {
+    (foreach (split content "\n") (fn (item) {
       (let splitElement (split item "="))
       (let property (index splitElement 0))
       (let value (replace (index splitElement 1) "\r" ""))
 
       (push result (list property value))
-    })
+    }))
     (return result)
   }))
 
   (let getProperty (fn (config property) {
     (let value "")
-    (foreach config item {
-      (if (= (index item 0) property) {
-        (set value (index item 1))
-        (return value)
-      })
-    })
-    (return none)
+    (foreach config (fn (item) {
+       (if (= (index item 0) property) {
+         (set value (index item 1))
+         (return value)
+       })
+    }))
+    (return value)
   }))
 }

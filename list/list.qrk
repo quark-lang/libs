@@ -6,15 +6,18 @@
               "cb: the function to apply to the elements"]
     @author = "Thomas Vergne <thomas@quark-lang.dev>"
   */
-  (let foreach (fn (array (block var) (block body)) {
+
+  (import "operators.qrk")
+  (let foreach (fn (array callback) {
     (let i 0)
     (let len (length array))
-    (while (< i len) {
-      (let (get var) (index array i))
-      (std:exec body)
+    (while (!= i len) {
+      (let item (index array i))
+      (callback item i)
       (set i (+ i 1))
     })
   }))
+
   /*
     @name = push
     @brief = Pushes an element to a list
@@ -23,25 +26,20 @@
     @author = "Wafelack <wafelack@protonmail.com>"
     @details = Returns the element if it is not a list
   */
+
   (let push (fn (el item) {
-    (set (index el (length el)) item)
+    (let len (length el))
+    (set (index el len) item)
     (return el)
   }))
 
-  (let join (fn (arr del) {
-    (set del (if (= del none) "" del))
-    (let res "")
-    (foreach arr el (set res (+ res (+ el del))))
-    (return res)
-  }))
-
-  (let slice (fn (arr start end) {
-    (let res (list))
-    (if (= start none) (return (std:copy arr)))
-    (if (= end none) (set end (length arr)))
-    (foreach arr el {
-      (if (and (>= i start) (<= i end)) (push res el))
+  (let range (fn (from to) {
+    (let i from)
+    (let tmp (list))
+    (while (and (> i (- from 1)) (< i to)) {
+      (push tmp i)
+      (set i (+ i 1))
     })
-    (return (if (= (type arr) "List") res (join res)))
+    (return tmp)
   }))
 }
