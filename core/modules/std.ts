@@ -1,9 +1,11 @@
-import { quarkify, QuarkModule, setValue } from '../../../api/api.ts';
+import { QuarkModule } from '../../../api/api.ts';
 import { QuarkTypes } from '../../../api/typings/types.ts';
-import { getValue, Interpreter } from '../../../src/core/interpreter.ts';
+import { Atom, getValue, Interpreter, stringify } from '../../../src/core/interpreter.ts';
 import { Parser } from '../../../src/core/parser.ts';
-import { BooleanType, IntegerType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
+import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
 import { isContainer } from '../../../src/utils/runner.ts';
+import { Block, Element } from '../../../src/typings/block.ts';
+import { setValue } from '../../../api/quarkifier.ts';
 
 // std:out
 QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
@@ -96,22 +98,17 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   }
 });
 
-function quarkifyArray(array: any[]): string {
-  let res: string = '';
-  for (const index in array) {
-    const item = array[index];
-    if (Array.isArray(item)) {
-      res += `(list ${quarkifyArray(item)})`;
-    } else {
-      if (typeof item === 'string') {
-        res += `"${item}"`;
-      } else res += item;
-      if (array[Number(index) + 1] !== undefined) {
-        res += ' ';
-      }
+function nodeify(el: ValueElement, result: Atom = []): Atom | NoneType {
+  if (!('value' in el)) return { type: Types.None, value: undefined };
+  if (Array.isArray(el.value)) {
+    (<Block>result).push([]);
+    for (const item of el.value) {
+      nodeify(item, (<Block>result).slice(-1)[0]);
     }
+  } else {
+    (<Block>result).push(<Element>el);
   }
-  return res;
+  return result;
 }
 
 // print
@@ -120,12 +117,12 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   body: (...args: ValueElement[]) => {
     const items = [];
     for (const arg of args) {
-      const _arg = getValue([arg]);
-      if (Array.isArray(_arg[0])) {
-        items.push(quarkifyArray(_arg))
-      } else {
-        items.push(_arg[0]);
+      const nodeified = nodeify(arg);
+      if ('type' in nodeified && nodeified.type === Types.None) {
+        items.push(nodeified);
+        continue;
       }
+      items.push(stringify((<Block>nodeified)[0]));
     }
     console.log(...items);
   },
