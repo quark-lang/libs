@@ -1,7 +1,6 @@
 {
-  (import "list/list.qrk")
-  (import "list/split.qrk")
-  (import "operators.qrk")
+  (import "list")
+  (import "operators")
 
   (let parseConfiguration (fn (content) {
     (let result (list))
