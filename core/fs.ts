@@ -64,3 +64,13 @@ QuarkModule.declare('fs', QuarkTypes.QuarkFunction, {
     }
   }
 });
+
+QuarkModule.declare('fs', QuarkTypes.QuarkFunction, {
+  name: 'basename',
+  body: function(src: StringType): StringType {
+    return {
+      type: Types.String,
+      value: path.basename(src.value),
+    }
+  }
+});
