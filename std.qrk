@@ -1,5 +1,5 @@
 {
   (import "configuration/configuration.qrk")
-  (import "list/split.qrk")
+  (import "list/split/split.qrk")
   (import "list/list.qrk")
 }
