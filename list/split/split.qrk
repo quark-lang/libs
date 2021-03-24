@@ -1,5 +1,5 @@
 
-  (import "list.qrk")
+  (import "../list.qrk")
   (import "operators.qrk")
   (let split (fn (string delimitor) {
     (let result (list))
