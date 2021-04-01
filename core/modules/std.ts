@@ -118,6 +118,10 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
     const items = [];
     for (const arg of args) {
       const nodeified = nodeify(arg);
+      if (!Array.isArray(arg) && 'value' in arg) {
+        items.push(arg.value);
+        continue;
+      }
       if ('type' in nodeified && nodeified.type === Types.None) {
         items.push(nodeified);
         continue;
