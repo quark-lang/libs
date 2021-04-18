@@ -2,6 +2,7 @@ import { QuarkModule } from '../../../api/api.ts';
 import { QuarkTypes } from '../../../api/typings/types.ts';
 import { Atom, getValue, Interpreter, stringify } from '../../../src/core/interpreter.ts';
 import { Parser } from '../../../src/core/parser.ts';
+import * as color from 'https://deno.land/std@0.83.0/fmt/colors.ts';
 import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
 import { isContainer } from '../../../src/utils/runner.ts';
 import { Block, Element } from '../../../src/typings/block.ts';
@@ -117,16 +118,7 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   body: (...args: ValueElement[]) => {
     const items = [];
     for (const arg of args) {
-      const nodeified = nodeify(arg);
-      if (!Array.isArray(arg) && 'value' in arg) {
-        items.push(arg.value);
-        continue;
-      }
-      if ('type' in nodeified && nodeified.type === Types.None) {
-        items.push(nodeified);
-        continue;
-      }
-      items.push(stringify((<Block>nodeified)[0]));
+      items.push(stringify(arg))
     }
     console.log(...items);
   },
@@ -180,8 +172,8 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'type',
   body: function(variable: any): ValueElement {
     return {
-      type: Types.String,
-      value: typeof variable.value,
+      type: Types.Integer,
+      value: <number><unknown>(variable.type === 'List' ? 'list' : typeof variable.value),
     };
   }
 });
