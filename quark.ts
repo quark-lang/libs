@@ -1,5 +1,6 @@
-import { QuarkModule, QuarkType } from '../api/api.ts';
+import { QuarkModule} from '../api/api.ts';
 import { QuarkTypes } from '../api/typings/types.ts';
+import { QuarkType } from '../api/quarkifier.ts';
 import { Function } from '../src/core/interpreter.ts';
 import {
   Types,
