@@ -2,7 +2,6 @@ import { QuarkModule } from '../../../api/api.ts';
 import { QuarkTypes } from '../../../api/typings/types.ts';
 import { Atom, getValue, Interpreter, stringify } from '../../../src/core/interpreter.ts';
 import { Parser } from '../../../src/core/parser.ts';
-import * as color from 'https://deno.land/std@0.83.0/fmt/colors.ts';
 import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
 import { isContainer } from '../../../src/utils/runner.ts';
 import { Block, Element } from '../../../src/typings/block.ts';
@@ -138,7 +137,7 @@ QuarkModule.declare('time', QuarkTypes.QuarkFunction, {
 // time:sleep
 QuarkModule.declare('time', QuarkTypes.QuarkFunction, {
   name: 'sleep',
-  body: async function(time: IntegerType) {
+  body: function(time: IntegerType) {
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(true);
