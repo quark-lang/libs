@@ -42,4 +42,23 @@
     })
     (return tmp)
   }))
+
+  (let list:create (fn (len) {
+    (let list [])
+    (foreach (range 1 len) (fn () (push list none)))
+    (return list)
+  }))
+
+  (let list:fill (fn (list value) {
+    (foreach list (fn (item index) (set (index list index) value)))
+    (return list)
+  }))
+
+  (let list:concat (fn (list) {
+    (let result "")
+    (foreach list (fn (item) {
+      (set result (++ result item))
+    }))
+    (return result)
+  }))
 }
