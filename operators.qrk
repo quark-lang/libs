@@ -12,4 +12,6 @@
   (let < (fn (el1 el2) (return (not (greater el1 el2)))))
 
   (let ++ (fn (el1 el2) (return (concat el1 el2))))
+
+  (let % mod)
 }
