@@ -44,6 +44,27 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
 });
 
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'pow',
+  body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
+    return setValue(getValue([lhs]) ** getValue([rhs])) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'mod',
+  body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
+    return setValue(getValue([lhs]) % getValue([rhs])) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'ceil',
+  body: function(lhs: IntegerType): IntegerType {
+    return setValue(Math.ceil(getValue([lhs]))) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'divide',
   body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
     return setValue(getValue([lhs]) / getValue([rhs])) as IntegerType;
