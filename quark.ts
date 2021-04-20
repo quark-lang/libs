@@ -15,7 +15,7 @@ async function getRelease(): Promise<string> {
   const github = await fetch('https://api.github.com/repos/quark-lang/quark/releases');
   const json = await github.json();
   const path: string = Path.join(await getQuarkFolder(), '.quarkrc');
-  const config = await parseConfiguration(path);
+  const config = await parseConfiguration(await File.read(path));
 
   if (json.message && json.message.includes('API rate limit')) return config['version'];
   return json[0].tag_name || config['version'];
