@@ -161,6 +161,17 @@ QuarkModule.declare('time', QuarkTypes.QuarkFunction, {
   }
 })
 
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'del',
+  body: function(variable: any) {
+    if (variable.name === undefined) throw `You can only delete variable`;
+    const found = Frame.variables().get(variable.name);
+    found.type = 'None';
+    found.value = undefined;
+    found.name = undefined;
+  }
+})
+
 // replace
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'replace',
@@ -228,9 +239,26 @@ QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
     else {
       Frame.pushLocalFrame(stack.value);
     }
-    if (isContainer(ast) && ast.length === 1)
-      return { type: 'List', value: [await Interpreter.process(ast[0]), { type: 'Object', value: Frame.local, }] };
-    return setValue([await Interpreter.process(ast), Frame.local]);
+    if (isContainer(ast) && ast.length === 1) {
+      const res = { 
+        type: 'List', 
+        value: [
+          setValue(await Interpreter.process(ast[0])),
+          { 
+            type: 'Object', 
+            value: Frame.local, 
+          }
+        ] 
+      };
+      Frame.popLocalFrame();
+      return res;
+    }
+    const res = setValue([
+      setValue(await Interpreter.process(ast)),
+      Frame.local
+    ]);
+    Frame.popLocalFrame();
+    return res;
   }
 });
 
