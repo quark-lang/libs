@@ -1,6 +1,6 @@
 import { QuarkModule } from '../../../api/api.ts';
 import { QuarkTypes } from '../../../api/typings/types.ts';
-import { Atom, getValue, Interpreter, stringify } from '../../../src/core/interpreter.ts';
+import { Atom, getValue, Interpreter, stringify, Frame } from '../../../src/core/interpreter.ts';
 import { Parser } from '../../../src/core/parser.ts';
 import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
 import { isContainer } from '../../../src/utils/runner.ts';
@@ -33,6 +33,20 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   args: [{ type: 'Word', value: 'val1' }, { type: 'Word', value: 'val2' }],
   body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
     return setValue(getValue([lhs]) - getValue([rhs])) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'multiplicate',
+  body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
+    return setValue(getValue([lhs]) * getValue([rhs])) as IntegerType;
+  }
+});
+
+QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
+  name: 'divide',
+  body: function(lhs: IntegerType, rhs: IntegerType): IntegerType {
+    return setValue(getValue([lhs]) / getValue([rhs])) as IntegerType;
   }
 });
 
@@ -117,7 +131,8 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   body: (...args: ValueElement[]) => {
     const items = [];
     for (const arg of args) {
-      items.push(stringify(arg))
+      if ('variable' in arg) items.push(stringify(<any>{ type: 'None', value: undefined }));
+      else items.push(stringify(arg))
     }
     console.log(...items);
   },
@@ -193,17 +208,29 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   }
 });
 
+QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
+  name: 'stack',
+  body: function() {
+    return setValue(Frame.frame);
+  }
+});
+
 // std:exec
 QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
   name: 'exec',
-  body: async function(code: any): Promise<StringType> {
-    const ast = code.type === 'Block'
+  body: async function(code: any, stack: any): Promise<any> {
+    let ast = code.type === 'Block'
       ? code.value
-      : Parser.parse(code.value);
-
+      : Parser.parse(code.value, '');
+    if (!Array.isArray(ast)) ast = [ast]; 
+    if (stack.type === 'None') 
+      Frame.pushLocalFrame();
+    else {
+      Frame.pushLocalFrame(stack.value);
+    }
     if (isContainer(ast) && ast.length === 1)
-      return await Interpreter.process(ast[0]);
-    return await Interpreter.process(ast);
+      return { type: 'List', value: [await Interpreter.process(ast[0]), { type: 'Object', value: Frame.local, }] };
+    return setValue([await Interpreter.process(ast), Frame.local]);
   }
 });
 
