@@ -25,3 +25,9 @@ export async function run(command: string, cwd?: string) {
 export function trim(str: string): string {
   return str.trim();
 }
+
+export async function callback(cb: any) {
+  await cb(['test', 25], 'bruh');
+}
+
+export const json_parse = JSON.parse
