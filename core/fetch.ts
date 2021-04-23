@@ -1,9 +1,10 @@
-import { QuarkModule } from '../../api/api.ts';
-import { QuarkTypes } from '../../api/typings/types.ts';
+import { QuarkModule } from '../../api/api';
+import { QuarkTypes } from '../../api/typings/types';
 import {
   Types,
   StringType,
-} from '../../src/typings/types.ts';
+} from '../../src/typings/types';
+import { writeFile } from 'fs/promises';
 
 // fetch
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
@@ -25,7 +26,7 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'download',
   body: async (url: StringType, filename: StringType) => {
     const data = (await fetch(url.value)).arrayBuffer();
-    await Deno.writeFile(filename.value, new Uint8Array(await data));
+    await writeFile(filename.value, new Uint8Array(await data));
     return filename;
   }
 });

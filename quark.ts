@@ -1,15 +1,15 @@
-import { QuarkModule} from '../api/api.ts';
-import { QuarkTypes } from '../api/typings/types.ts';
-import { QuarkType } from '../api/quarkifier.ts';
-import { Function } from '../src/core/interpreter.ts';
+import { QuarkModule} from '../api/api';
+import { QuarkTypes } from '../api/typings/types';
+import { QuarkType, setValue } from '../api/quarkifier';
+import { Function } from '../src/core/interpreter';
 import {
   Types,
   StringType,
   FunctionType,
-} from '../src/typings/types.ts';
-import { getQuarkFolder, parseConfiguration } from '../src/main.ts';
-import * as Path from 'https://deno.land/std@0.83.0/path/mod.ts';
-import { File } from '../src/utils/file.ts';
+} from '../src/typings/types';
+import { getQuarkFolder, parseConfiguration } from '../src/main';
+import * as Path from 'path';
+import { File } from '../src/utils/file';
 
 async function getRelease(): Promise<string> {
   const github = await fetch('https://api.github.com/repos/quark-lang/quark/releases');
@@ -21,11 +21,10 @@ async function getRelease(): Promise<string> {
   return json[0].tag_name || config['version'];
 }
 
-QuarkModule.declare('quark', QuarkTypes.QuarkVariable, {
+QuarkModule.declare('quark', QuarkTypes.QuarkFunction, {
   name: 'release',
-  value: {
-    type: Types.String,
-    value: await getRelease(),
+  body: async function() {
+    return setValue(await getRelease());
   }
 });
 
@@ -41,7 +40,7 @@ QuarkModule.declare('on', QuarkTypes.QuarkFunction, {
   name: 'exit',
   body: async function(cb: FunctionType) {
     window.addEventListener('unload', function() {
-      Function.call(cb as FunctionType, []);
+      Function.call(<any>cb, []);
     });
   }
 });

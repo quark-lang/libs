@@ -1,11 +1,12 @@
-import { QuarkModule } from '../../../api/api.ts';
-import { QuarkTypes } from '../../../api/typings/types.ts';
-import { Atom, getValue, Interpreter, stringify, Frame } from '../../../src/core/interpreter.ts';
-import { Parser } from '../../../src/core/parser.ts';
-import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types.ts';
-import { isContainer } from '../../../src/utils/runner.ts';
-import { Block, Element } from '../../../src/typings/block.ts';
-import { setValue } from '../../../api/quarkifier.ts';
+import { QuarkModule } from '../../../api/api';
+import { QuarkTypes } from '../../../api/typings/types';
+import { Atom, getValue, Interpreter, stringify, Frame } from '../../../src/core/interpreter';
+import { Parser } from '../../../src/core/parser';
+import { BooleanType, IntegerType, NoneType, StringType, Types, ValueElement } from '../../../src/typings/types';
+import { isContainer } from '../../../src/utils/runner';
+import { Block, Element } from '../../../src/typings/block';
+import { setValue } from '../../../api/quarkifier';
+const prompt = require("prompt-sync")({ sigint: true });
 
 // std:out
 QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
@@ -13,7 +14,7 @@ QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
   body: async function(text: ValueElement) {
     if ('value' in text) {
       const encodedText: Uint8Array = (new TextEncoder).encode(String(text.value));
-      await Deno.stdout.write(encodedText);
+      process.stdout.write(encodedText);
     }
   }
 });
@@ -199,7 +200,7 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   body: function(el: StringType, elToRepl: StringType, repl: StringType) {
     return {
       type: Types.String,
-      value: el.value.replace(elToRepl.value, repl.value),
+      value: String(el.value).replace(elToRepl.value, repl.value),
     }
   }
 })
@@ -209,7 +210,7 @@ QuarkModule.declare('std', QuarkTypes.QuarkVariable, {
   name: 'args',
   value: {
     type: Types.List,
-    value: Deno.args.map((acc) => ({ type: Types.String, value: acc })),
+    value: process.argv.slice(2).map((acc) => ({ type: Types.String, value: acc })),
   },
 });
 
@@ -227,16 +228,8 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
 // input
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'input',
-  body: async function(question: StringType): Promise<StringType> {
-    const buf = new Uint8Array(1024);
-    await Deno.stdout.write(new TextEncoder().encode(question.value));
-
-    const input = await Deno.stdin.read(buf);
-    const answer = new TextDecoder().decode(buf.subarray(0, input as number | undefined));
-    return {
-      type: Types.String,
-      value: answer.trim(),
-    };
+  body: async function(question: StringType) {
+    return setValue(prompt(question.value));
   }
 });
 
@@ -287,9 +280,9 @@ QuarkModule.declare('std', QuarkTypes.QuarkFunction, {
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'throw',
   body: function(...message: ValueElement[]) {
-    if (message.length === 0) return Deno.exit(1);
+    if (message.length === 0) return process.exit(1);
     console.log(message.map((arg) => 'value' in arg ? arg.value : arg).join(' '));
-    return Deno.exit(1);
+    return process.exit(1);
   }
 });
 

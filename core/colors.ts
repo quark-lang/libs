@@ -1,8 +1,8 @@
-import { QuarkModule } from '../../api/api.ts';
-import { QuarkTypes } from '../../api/typings/types.ts';
-import { StringType } from '../../src/typings/types.ts';
-import { bold, green, red, rgb24, yellow, white } from 'https://deno.land/std@0.83.0/fmt/colors.ts';
-import { quarkify } from '../../api/quarkifier.ts';
+import { QuarkModule } from '../../api/api';
+import { QuarkTypes } from '../../api/typings/types';
+import { StringType } from '../../src/typings/types';
+import { bold, green, red, yellow, white, gray } from 'colors';
+import { quarkify } from '../../api/quarkifier';
 
 // green
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
@@ -13,7 +13,7 @@ QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
 // gray
 QuarkModule.declare(null, QuarkTypes.QuarkFunction, {
   name: 'gray',
-  body: (message: StringType) => quarkify(rgb24, message, 0x808080),
+  body: (message: StringType) => quarkify(gray, message),
 });
 
 // yellow

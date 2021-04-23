@@ -1,14 +1,14 @@
-import { File } from '../../src/utils/file.ts';
-import { QuarkModule } from '../../api/api.ts';
-import { QuarkTypes } from '../../api/typings/types.ts';
-import { existsSync } from 'https://deno.land/std/fs/mod.ts';
+import { File } from '../../src/utils/file';
+import { QuarkModule } from '../../api/api';
+import { QuarkTypes } from '../../api/typings/types';
+import { existsSync } from 'fs';
 import {
   Types,
   StringType,
   NoneType,
-} from '../../src/typings/types.ts';
-import * as path from 'https://deno.land/std@0.83.0/path/mod.ts';
-import { getQuarkFolder } from '../../src/main.ts';
+} from '../../src/typings/types';
+import * as path from 'path';
+import { getQuarkFolder } from '../../src/main';
 
 // fs:read
 QuarkModule.declare('fs', QuarkTypes.QuarkFunction, {
@@ -30,7 +30,7 @@ QuarkModule.declare('fs', QuarkTypes.QuarkVariable, {
   name: 'cwd',
   value: {
     type: Types.String,
-    value: Deno.cwd(),
+    value: process.cwd(),
   },
 });
 
@@ -39,7 +39,7 @@ QuarkModule.declare('fs', QuarkTypes.QuarkVariable, {
   name: 'root',
   value: {
     type: Types.String,
-    value: await getQuarkFolder(),
+    value: getQuarkFolder(),
   },
 });
 
